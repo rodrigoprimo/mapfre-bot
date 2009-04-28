@@ -1,0 +1,10 @@
+Como rodar:
+
+aptitude install python-mechanize python-setuptools
+easy_install web.py
+python code.py &
+python mapfre.py
+
+
+Você pode passar como parâmetro para o code.py em qual porta ele deve subir o servidor (por padrão ele sobe na 8080). Exemplo:
+     python code.py 8081 &
