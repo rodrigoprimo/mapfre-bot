@@ -6,7 +6,12 @@ nice_ids = ["52"]
 def get_top(html):
     t = html.split("Mais Votados")[1]
     t = t.split("/div")[0]
-    return [ i.split('"')[0] for i in t.split("id=")[1:] ] + nice_ids*2
+    top = []
+    for i in [ i.split('"')[0] for i in t.split("id=")[1:] ]:
+        if i not in nice_ids:
+            top.append(i)
+            break
+    return top + nice_ids*2
 
 def get(c, d, sid, n):
     brs = []
