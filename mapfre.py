@@ -16,8 +16,11 @@ def get(c, d, sid, n):
         id = random.choice(top)
         print id
         brs.append((Browser(), id))
-        u = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/home-promocao/historia.do?id=%s" % id)
-        img = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/captcha.do")
+        try: 
+            u = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/home-promocao/historia.do?id=%s" % id)
+            img = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/captcha.do")
+        except:
+            continue
         open("images/%s_captcha%d.png" % (sid, i), 'w').write(img.read())
     d[sid] = brs
     c.send("OK")
@@ -33,13 +36,17 @@ def send(c, brs, codes):
         else:
             nota = "1"
         data = "id=%s&nota=%s&codigo=%s&nocacheattr=1240840177958" % (id, nota, codes[i])
-        r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data=data)
-        resp = r.read()
-        print resp
-        if "sucesso!" in resp:
-            html+="<li><b>OK!</b></li>"
-        else:
+        try:
+            r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data=data)
+            resp = r.read()
+            print resp
+            if "sucesso!" in resp:
+                html+="<li><b>OK!</b></li>"
+            else:
+                html+="<li><i>FALHOU!</i></li>"
+        except:
             html+="<li><i>FALHOU!</i></li>"
+
     del brs
     html += "</ul><br/><br/>Total: %d <b>OK!</b> e %d <i>FALHOU!</i>" % (html.count("OK!"), html.count("FALHOU!"))
     html += "<h3><a href='/10'>Voltar</a></h3>"
