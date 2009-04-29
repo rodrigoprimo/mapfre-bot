@@ -13,7 +13,8 @@ web.config.debug = False
 import socket
 class index:
     def GET(self, rest):
-        print session.session_id
+        if rest == "" or rest.isspace():
+            rest = "10" # default value
         html = "<html><head></head><body>"
         if 'vote' in rest:
             codes = web.input()
