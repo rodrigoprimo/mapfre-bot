@@ -1,13 +1,23 @@
 from mechanize import Browser
-import os, socket, thread
+import os, socket, thread, random
 
+nice_ids = ["52"]
+
+def get_top(html):
+    t = html.split("Mais Votados")[1]
+    t = t.split("/div")[0]
+    return [ i.split('"')[0] for i in t.split("id=")[1:] ] + nice_ids*2
 
 def get(c, d, sid, n):
     brs = []
+    b = Browser()
+    top = get_top(b.open("http://www.omaiorbarbeirodobrasil.com.br/ranking/ranking.do").read())
     for i in range(n):
-        brs.append(Browser())
-        u = brs[i].open("http://www.omaiorbarbeirodobrasil.com.br/home-promocao/historia.do?id=52")
-        img = brs[i].open("http://www.omaiorbarbeirodobrasil.com.br/captcha.do")
+        id = random.choice(top)
+        print id
+        brs.append((Browser(), id))
+        u = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/home-promocao/historia.do?id=%s" % id)
+        img = brs[i][0].open("http://www.omaiorbarbeirodobrasil.com.br/captcha.do")
         open("images/%s_captcha%d.png" % (sid, i), 'w').write(img.read())
     d[sid] = brs
     c.send("OK")
@@ -16,8 +26,14 @@ def get(c, d, sid, n):
 def send(c, brs, codes):
     html = "<ul>"
     for i in range(min(len(brs), len(codes))):
-        br = brs[i]
-        r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data="id=52&nota=5&codigo=%s&nocacheattr=1240840177958" % codes[i])
+        br = brs[i][0]
+        id = brs[i][1]
+        if id in nice_ids:
+            nota = "5"
+        else:
+            nota = "1"
+        data = "id=%s&nota=%s&codigo=%s&nocacheattr=1240840177958" % (id, nota, codes[i])
+        r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data=data)
         resp = r.read()
         print resp
         if "sucesso!" in resp:
