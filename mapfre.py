@@ -1,9 +1,9 @@
 from mechanize import Browser
 import os, socket, thread
 
-brs = []
 
 def get(c, d, sid, n):
+    brs = []
     for i in range(n):
         brs.append(Browser())
         u = brs[i].open("http://www.omaiorbarbeirodobrasil.com.br/home-promocao/historia.do?id=52")
@@ -17,13 +17,14 @@ def send(c, brs, codes):
     html = "<ul>"
     for i in range(min(len(brs), len(codes))):
         br = brs[i]
-        r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data="id=52&nota=5&codigo=%s&nocacheattr=1240840177958" % codes[i]) 
+        r = br.open('http://www.omaiorbarbeirodobrasil.com.br/home-promocao/votar.do', data="id=52&nota=5&codigo=%s&nocacheattr=1240840177958" % codes[i])
         resp = r.read()
         print resp
         if "sucesso!" in resp:
             html+="<li><b>OK!</b></li>"
         else:
             html+="<li><i>FALHOU!</i></li>"
+    del brs
     html += "</ul><br/><br/>Total: %d <b>OK!</b> e %d <i>FALHOU!</i>" % (html.count("OK!"), html.count("FALHOU!"))
     html += "<h3><a href='/10'>Voltar</a></h3>"
     c.send(html)
@@ -48,6 +49,7 @@ def main():
                 thread.start_new_thread(get, (c, dic, cmd[1], int(cmd[2])))
             else:
                 thread.start_new_thread(send, (c, dic[cmd[1]], cmd[2].split(";")))
+                del dic[cmd[1]]
         except KeyboardInterrupt:
             import sys
             sys.exit()
